@@ -1,0 +1,39 @@
+* Project ideas
+  - Turn time series into a timeseries of MDS's and try to model how the
+  points move (keep in mind alternative axes?)
+  - Tensor decomposition
+  - 
+
+* Talk with Stark
+  - we should know a little bit about the physics
+  - is ocean a boundary condition or is there coupling
+    (can we tell such models apart)?
+  - grid size: the smaller the grid, the higher the variance 
+    of the prediction?
+  - module swapping between models occur, especially between grid
+    points - sometimes based on physical equations and other times on
+    statistical quantities. Can we tell? i.e. modelling individual
+    clouds vs saying average cloud cover. 
+  - What are the differences between how the physics are represented
+    in these models - what features of there predictions would be
+    interesting to tell apart. sea surface and land surface
+    temperature, energy stored in the system, spatial variance in
+    temperature over a year (tell us how severe weather could get).
+  - albedo depend on cloud cover, ice cover - how do different models
+    deal with these?
+  - annual range of values (keeping extremes is more
+    interesting). IQR's or 95% ranges.
+  - models are not a random sample.
+  - but treating them as a population of models, and treating them as
+    such is legitimate statistically. Can we tell them apart b/c of
+    xyz.
+  - correlation/decorrelations of predictions.
+  - Rhodeum group chooses one county and one model (?) can we say
+    other models would disagree with there assessment, or change the
+    uncertainty of their estimates?
+  - can we get state vectors for these models?
+  - each model should have its own home site - there's probably a
+    review paper written within the last couple of years. Worth two
+    hours of time to understand the classes of models.
+  - potential role of prng: evaluating stochastic integrals. 
+  - see what language the code is written in - find what prng they use.
