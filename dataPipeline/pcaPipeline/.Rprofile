@@ -13,11 +13,8 @@ options(stringsAsFactors = FALSE)
     sapply(libs, quietLoad)
     rm(libs, quietLoad)
 
-    cat("\nHello!\n") 
 }
 
 .Last <- function(){
-    
-    cat("\nGoodbye!\n")
     
 }

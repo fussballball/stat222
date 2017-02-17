@@ -3,17 +3,13 @@
 ## get command line arguments
 args = commandArgs(trailingOnly=TRUE)
 
-library(ncdf4)
-library(plyr)
-library(digest)
-library(ggplot2)
-
 nc_files <- list.files("~/Documents/Stat222/cmip5-ng/",
                        recursive = TRUE, full.names = TRUE)
 
+## retrieve the variable passed by the commandline call
 commandVar <- args[1]
 
-tasDat <- ldply(nc_files, function(nc){
+varDat <- ldply(nc_files, function(nc){
     name <- digest(nc)
     ncin <- nc_open(nc)
     lon <- ncvar_get(ncin, "lon")
@@ -32,4 +28,6 @@ tasDat <- ldply(nc_files, function(nc){
     })
 })
 
-write.csv(tasDat, file = paste0(commandVar,"_compressed.csv"))
+write.csv(varDat, file = paste0(commandVar,"_compressed.csv"))
+
+quit()
