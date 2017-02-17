@@ -4,6 +4,7 @@
   - Tensor decomposition
   - 
 
+
 * Talk with Stark
   - we should know a little bit about the physics
   - is ocean a boundary condition or is there coupling
@@ -37,3 +38,11 @@
     hours of time to understand the classes of models.
   - potential role of prng: evaluating stochastic integrals. 
   - see what language the code is written in - find what prng they use.
+
+* pca project notes:
+  - loop through variables
+  - download data
+  - compress data (R)
+  - save to output file (R)
+  - remove data
+  
