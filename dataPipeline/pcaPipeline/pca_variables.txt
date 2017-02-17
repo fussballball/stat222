@@ -1,4 +1,2 @@
 tas
-clt
-pr
-rtmt
+
