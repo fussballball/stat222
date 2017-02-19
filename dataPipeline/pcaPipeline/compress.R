@@ -26,7 +26,7 @@ varDat <- ldply(nc_files, function(nc){
             data.frame(Model = model,
                        Variable = commandVar,
                        lon = lon[i],
-                       lat = lat[i],
+                       lat = lat[j],
                        varDts = var(ddt_series))
         })
     })

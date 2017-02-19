@@ -12,5 +12,7 @@ done < pca_variables.txt
 
 # finally, melt and concatenate all the compressed data:
 # Rscript
+Rscript merge_data.R
 
-
+# remove "compressed" files
+# rm *_compressed.csv
