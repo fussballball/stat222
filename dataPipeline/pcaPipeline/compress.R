@@ -22,12 +22,12 @@ varDat <- ldply(nc_files, function(nc){
     ldply(1:length(lon), function(i){
         ldply(1:length(lat), function(j){
             series <- cVar[i,j,]
-            ddt_series <- series[-1] - series[-length(series)]
+            ## series <- series[-1] - series[-length(series)]
             data.frame(Model = model,
                        Variable = commandVar,
                        lon = lon[i],
                        lat = lat[j],
-                       varDts = var(ddt_series))
+                       varDts = mean(series)) ## or var
         })
     })
 })
