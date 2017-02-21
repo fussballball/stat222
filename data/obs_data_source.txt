@@ -1,0 +1,8 @@
+observational data source in Sanderson & Knutti & Caldwell paper that i think we could use:
+
+Temperature:
+HadCRUT4
+https://crudata.uea.ac.uk/cru/data/temperature/#datdow
+
+Precipitation:
+https://www.esrl.noaa.gov/psd/data/gridded/data.gpcp.html
