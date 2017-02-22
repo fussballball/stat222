@@ -1,9 +1,11 @@
+library(gridExtra)
+library(grid)
 #Make a gif to compare the two "most different" models according to Yoni's PCA
 mod1 <- nc_open("C:/Uni/Berkeley/2nd Semester/STAT222/gitrepo/dataPipeline/cmip5-ng/tas/tas_mon_BNU-ESM_rcp26_r1i1p1_g025.nc")
 mod2 <- nc_open("C:/Uni/Berkeley/2nd Semester/STAT222/gitrepo/dataPipeline/cmip5-ng/tas/tas_mon_CNRM-CM5_rcp26_r1i1p1_g025.nc")
 
 #This doesn't make any sense: 7000 years? something wrong there...
-(max(mod1$dim$time$vals) - min(mod1$dim$time$vals))/12
+(max(mod1$dim$time$vals) - min(mod1$dim$time$vals))/365
 
 
 data1 <- ncvar_get(mod1)
@@ -31,14 +33,16 @@ for(i in indices){
   if (i < 100 && i >= 10) {name = paste('pcadiff00',i,'plot.png', sep='')}
   if (i < 1000 && i>= 100) {name = paste('pcadiff0', i,'plot.png', sep='')}
   if (i > 1000) {name = paste('pcadiff', i,'plot.png', sep='')}
-
-  tbp <- cbind(data1[data1$time ==i, c("lon","lat","time")], data1[data1$time ==i,"temp"] - data2[data2$time == 1,"temp"])
+  tbp <- cbind(data1[data1$time ==i, c("lon","lat","time")], data1[data1$time ==i,"temp"] - data2[data2$time == i,"temp"])
   colnames(tbp) <- c(colnames(tbp)[-length(colnames(tbp))],"temp")
   plot3 <- ggplot()  + geom_tile(data = tbp, mapping = aes(x = lon, y = lat, color = temp)) +
-  coord_fixed(1.4)+  scale_color_gradient(low="blue", high="yellow", limits = c(-40, 40)) +
-  geom_polygon(data = world, aes(x=long, y = lat, group = group), fill = NA, color = "black")
+  coord_fixed(1.4)+  scale_color_gradient("Temp. diff in K",low="blue", high="yellow", limits = c(-40, 40)) +
+  geom_polygon(data = world, aes(x=long, y = lat, group = group), fill = NA, color = "black") +
+    annotation_custom(grob = textGrob(paste(c("Year: ",(i-1)/12),collapse = "")),  
+                      xmin = -10, xmax = -10, ymin = -50, ymax = -50)
   ggsave(filename = name, plot = plot3, path = "./pcagif/")
 }
+
 
 
 war#
