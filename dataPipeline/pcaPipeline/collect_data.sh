@@ -7,7 +7,7 @@ while read var; do
     Rscript compress.R "$var"
     # finally delete all the data for this variable,
     # no need for it to be taking up space...
-    rm -rf /Users/Yoni/Documents/Stat222/stat222/dataPipeline/pcaPipeline/cmip5-ng
+    rm -rf /accounts/grad/yoni/Documents/Stat222/dataPipeline/pcaPipeline/cmip5-ng
 done < pca_variables.txt
 
 # finally, melt and concatenate all the compressed data:

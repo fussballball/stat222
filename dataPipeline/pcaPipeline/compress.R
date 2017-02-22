@@ -2,8 +2,7 @@
 
 ## get command line arguments
 args = commandArgs(trailingOnly=TRUE)
-
-nc_files <- list.files(paste0("~/Documents/Stat222/stat222/",
+nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
                               "dataPipeline/pcaPipeline/cmip5-ng/"),
                        recursive = TRUE, full.names = TRUE)
 
