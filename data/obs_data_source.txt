@@ -3,6 +3,7 @@ observational data source in Sanderson & Knutti & Caldwell paper that i think we
 Temperature:
 HadCRUT4
 https://crudata.uea.ac.uk/cru/data/temperature/#datdow
-
+HadCRUT3
+ftp://ftp.cdc.noaa.gov/Datasets/cru/hadcrut3/std/
 Precipitation:
 https://www.esrl.noaa.gov/psd/data/gridded/data.gpcp.html
