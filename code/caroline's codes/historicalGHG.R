@@ -63,6 +63,7 @@ transform_1to5<-function(data){
       for (b in 1:36){
         count<-count+1
         month_col[count]<-month[i]
+        # reverse: tas land is from south to north
         data_col[count]<-mean(data[(5*a-4):(5*a),(5*b-4):(5*b),i])
       }
     }
@@ -88,10 +89,10 @@ transform<-function(data){
   output<-data.frame("month"=month_col,"data"=data_col)
   return(output)
 }
-
+models<-read.csv("his_model.txt",header=FALSE,stringsAsFactors = F)[,1]
 
 # variable name
-var="tas"
+var="pr"
 dir<-paste0("./",var,"-his/",var)
 data_list<-list.files(dir)
 data_r <- nc_open(paste0(dir,"/",data_list[1]))
@@ -110,7 +111,7 @@ str(data) #num [1:144, 1:72, 1:1632]
 
 # for each model, transfer into 5by5_one_dimension output csv
 # obtain month from 1979/01-1985/12
-models<-read.csv("his_model.txt",header=FALSE,stringsAsFactors = F)[,1]
+
 dir.create(paste0(var,"-1d"))
 for (i in 1:length(models)){
   file<-data_list[grep(models[i],data_list)]
@@ -125,44 +126,6 @@ for (i in 1:length(models)){
 
 
 
-
-
-# observational data : surface temperature
-
-TS<- nc_open("tas_obs1_land.nc")
-data <- ncvar_get(TS)
-# 
-# 4 dimensions:
-# latitude  Size:36
-# longitude  Size:72
-# time  Size:2004 
-# start_year: 1948
-# end_year: 2016
-# observational data : precipitation
-# units: K
-data<-data[,,((1979-1948)*12+1):((1979-1948)*12+84)]
-data[is.na(data)]<-0
-data_land<-transform_05to5(data)
-
-TS<- nc_open("tas_obs1_sea.nc")
-data <- ncvar_get(TS)
-# 
-# 4 dimensions:
-# latitude  Size:36
-# longitude  Size:72
-# time  Size:2004 
-# start_year: 1850
-# end_year: 2016
-# observational data : precipitation
-# units: K
-data<-data[,,((1979-1850)*12+1):((1979-1850)*12+84)]
-data[is.na(data)]<-0
-data_sea<-transform_1to5(data)
-# convert Celsius to KELVIN 273.15
-data_sea[,2]<-data_sea[,2]+273.15
-data_land[data_sea[,2]>0,2]<-0
-data<-data.frame(data_sea[,1],data=data_sea[,2]+data_land[,2])
-write.csv(data,"tas_obs_1d.csv",row.names=FALSE)
 
 PR<- nc_open("pr_obs.nc") 
 # there's something wrong with the description
@@ -241,16 +204,72 @@ ggplot()+geom_point(data=points,aes(x=x,y=y,shape=names,color=names),size=3)+
 
 
 
+# observational data : surface temperature
+
+TS<- nc_open("tas_obs1_land.nc")
+data <- ncvar_get(TS)
+# 
+# 4 dimensions:
+# latitude  Size:36
+# longitude  Size:72
+# time  Size:2004 
+# start_year: 1979
+# end_year: 2016
+# observational data : precipitation
+# units: K
+data<-data[,,((1979-1900)*12+1):((1979-1900)*12+84)]
+
+data_land<-transform_05to5(data)
+
+
+TS<- nc_open("tas_obs1_sea.nc")
+data <- ncvar_get(TS)
+# 
+# 4 dimensions:
+# latitude  Size:36
+# longitude  Size:72
+# time  Size:2004 
+# start_year: 1850
+# end_year: 2016
+# observational data : precipitation
+# units: K
+data<-data[,,((1979-1850)*12+1):((1979-1850)*12+84)]
+data_sea<-transform_1to5(data)
+write.csv(data_land,"tas_obs_land.csv",row.names=FALSE)
+
+
+TS<- nc_open("tas_obs.nc")
+data <- ncvar_get(TS)
+data<-data[,,((1979-1850)*12+1):((1979-1850)*12+84)]
+TS<- nc_open("absolute.nc")
+abs <- ncvar_get(TS)
+abs<-abs+273.15
+# add absolute value to anomalies 
+for (i in 1:7){
+  ii<-1
+  while (ii<=12){
+  data[,,(12*(i-1)+ii)]<-data[,,(12*(i-1)+ii)]+abs[,,ii]
+  ii<-ii+1
+  }
+}
+data<-transform(data)
+write.csv(data,"tas_obs_1D.csv",row.names=FALSE)
+
+
+
+
+####################################
 # form a matrix of ts
+#####################################
 tas<-read.csv("tas_obs_1d.csv",stringsAsFactors = F)
-tas[is.na(tas)]<-0
 for (i in 1:length(models)){
   mod<-read.csv(paste0("tas-1d/",models[i],".csv"),stringsAsFactors = F)[,2]
   tas<-cbind(tas,mod)
 }
-#write.csv(tas,"tas_obs_ori.csv",row.names=F)
 names(tas)<-c("month","obs",models)
 write.csv(tas,"tas_obs_models.csv",row.names = F)
+tas<-read.csv("tas_obs_models.csv",stringsAsFactors = F)
+tas<-na.omit(tas)
 sapply(tas[,2:21],mean)
 sapply(tas[,2:21],sd)
 
@@ -282,6 +301,8 @@ for (i in 2:21){
     tas_dis[i-1,j-1]<-sqrt(sum((tas[,i] - tas[,j]) ^ 2))
   }
 }
+tas_dis[1,]<-tas_dis[1,]/3.1
+tas_dis[,1]<-tas_dis[,1]/3.1
 write.csv(tas_dis,"tas_distance_scale.csv",row.names = F)
 mds<-cmdscale(tas_dis, eig = TRUE, k = 2)
 points<-data.frame(mds$points)
