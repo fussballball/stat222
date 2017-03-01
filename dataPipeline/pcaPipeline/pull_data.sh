@@ -5,7 +5,7 @@ tmpRes=$2
 
 # I'm going to keep these fixed for now
 sptRes="g025"
-scenario="rcp26"
+scenario="historicalGHG"
 ensemble="r1i1p1"
 
 # get the list of all possible file names, then filter down to

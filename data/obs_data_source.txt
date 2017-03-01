@@ -1,0 +1,9 @@
+observational data source in Sanderson & Knutti & Caldwell paper that i think we could use:
+
+Temperature:  
+Need download to the anomalies “HadCRUT4” and add it with absolute value “ABSOLUTE”to get surface temperature
+https://crudata.uea.ac.uk/cru/data/temperature/
+
+
+Precipitation:
+https://www.esrl.noaa.gov/psd/data/gridded/data.gpcp.html
