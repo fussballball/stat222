@@ -10,9 +10,11 @@ while read var; do
     rm -rf /accounts/grad/yoni/Documents/Stat222/dataPipeline/pcaPipeline/cmip5-ng
 done < pca_variables.txt
 
-# finally, melt and concatenate all the compressed data:
-# Rscript
+# melt and concatenate all the compressed data:
 Rscript merge_data.R
+
+# run the mds and save an image
+Rscript doMDS.R
 
 # remove "compressed" files
 # rm *_compressed.csv

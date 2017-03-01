@@ -8,6 +8,10 @@ nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
 
 ## retrieve the variable passed by the commandline call
 commandVar <- args[1]
+## should add to command args:
+N <- 30 ## compress temporily to N vars
+M <- 30 ## compress spatially to M vars
+
 
 varDat <- ldply(nc_files, function(nc){
     model <- strsplit(nc, "_")[[1]][3]
@@ -15,20 +19,21 @@ varDat <- ldply(nc_files, function(nc){
     lon <- ncvar_get(ncin, "lon")
     lat <- ncvar_get(ncin, "lat")
     cVar <- ncvar_get(ncin, commandVar)
-    ## loop through every lat/lon pair, compress the
-    ## time series at that point, and output a data.frame
-    ## of with the compressed data.
-    ldply(1:length(lon), function(i){
-        ldply(1:length(lat), function(j){
-            series <- cVar[i,j,]
-            ## series <- series[-1] - series[-length(series)]
-            data.frame(Model = model,
-                       Variable = commandVar,
-                       lon = lon[i],
-                       lat = lat[j],
-                       varDts = var(series)) ## or var
-        })
-    })
+    tMax <- length(cVar[1,1,])
+    cMat <- matrix(rep(NA, tMax), nrow = 1, ncol = tMax)
+    # flatten the tensor
+    for(i in 1:length(lon)){
+        for(j in 1:length(lat)){
+            cMat <- rbind(cMat, cVar[i,j,])
+        }
+    }
+
+    ## perform two way pca:
+    pca1 <- prcomp(cMat, scale = TRUE, center = TRUE)[["x"]][,1:N]
+    pca2 <- prcomp(t(pca1), scale = TRUE, center = TRUE)[["x"]][,1:M]
+    ret <- data.frame(Model = model, as.list(as.vector(pca2)))
+    colnames(ret)[-1] <- paste0(commandVar, colnames(ret)[-1])
+    ret
 })
 
 ## write the data to a csv file
