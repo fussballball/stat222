@@ -19,19 +19,23 @@ varDat <- ldply(nc_files, function(nc){
     lon <- ncvar_get(ncin, "lon")
     lat <- ncvar_get(ncin, "lat")
     cVar <- ncvar_get(ncin, commandVar)
-    tMax <- length(cVar[1,1,])
-    cMat <- matrix(rep(NA, tMax), nrow = 1, ncol = tMax)
-    # flatten the tensor
-    for(i in 1:length(lon)){
-        for(j in 1:length(lat)){
-            cMat <- rbind(cMat, cVar[i,j,])
-        }
-    }
+    tLen <- length(cVar[1,1,])
+    latLen <- length(lat)
+    lonLen <- length(lon)
+    cMat <- matrix(rep(NA, tLen * latLen * lonLen),
+                   nrow = latLen * lonLen,
+                   ncol = tLen)
+    dims <- expand.grid(lons = 1:lonLen, lats = 1:latLen)
 
+    ## flatten the vector
+    for(i in 1:nrow(dims)) {
+        cMat[i, ] <- cVar[dims$lons[i], dims$lats[i],]
+    }
+    
     ## perform two way pca:
-    pca1 <- prcomp(cMat, scale = TRUE, center = TRUE)[["x"]][,1:N]
-    pca2 <- prcomp(t(pca1), scale = TRUE, center = TRUE)[["x"]][,1:M]
-    ret <- data.frame(Model = model, as.list(as.vector(pca2)))
+    pcaTime <- prcomp(cMat, scale = TRUE, center = TRUE)[["x"]][,1:N]
+    pcaSpace <- prcomp(t(pcaTime), scale = TRUE, center = TRUE)[["x"]][,1:M]
+    ret <- data.frame(Model = model, as.list(as.vector(pcaSpace)))
     colnames(ret)[-1] <- paste0(commandVar, colnames(ret)[-1])
     ret
 })

@@ -8,7 +8,8 @@ options(stringsAsFactors = FALSE)
         )
     }
     
-    libs <- c("plyr", "ncdf4", "digest", "reshape2", "dplyr")
+    libs <- c("plyr", "ncdf4", "digest",
+              "reshape2", "dplyr")
 
     sapply(libs, quietLoad)
     rm(libs, quietLoad)
