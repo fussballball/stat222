@@ -92,7 +92,7 @@ transform<-function(data){
 models<-read.csv("his_model.txt",header=FALSE,stringsAsFactors = F)[,1]
 
 # variable name
-var="pr"
+var="tas"
 dir<-paste0("./",var,"-his/",var)
 data_list<-list.files(dir)
 data_r <- nc_open(paste0(dir,"/",data_list[1]))
