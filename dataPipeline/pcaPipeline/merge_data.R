@@ -1,8 +1,6 @@
 
 ## get all the data
-compressedFiles <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
-                                     "dataPipeline/pcaPipeline"),
-                              pattern = "_compressed", full.names = TRUE)
+compressedFiles <- list.files(pattern = "_compressed", full.names = TRUE)
 
 pcaDat <- llply(compressedFiles, function(fname){
     read.csv(fname)
