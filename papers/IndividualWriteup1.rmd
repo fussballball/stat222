@@ -7,8 +7,15 @@ bibliography: library.bib
 
 # Abstract
 
-Despite alternative facts to the contrary, climate change is real and is arguably
-the most dangerous threat (in the mid- to long-term) facing human societies
-[@UCS2000].
+Despite alternative facts to the contrary, rapid, anthropogenic climate change is
+not only real, but arguably the most dangerous threat (in the mid- to long-term)
+facing human societies [@UCS2000]. Given this unprecedented challenge, climate
+scientists have developed computational models to predict spatio-temporal
+changes in global climate under a variety of scenarios and assumptions [@Hawkins2009].
+Using these models in any analysis that goes beyond comparing apocalyptic futures,
+however, comes with a serious caveat. Estimates of model uncertainty do not
+necessarily indicate actual climate uncertainty. Thus building policy based on these
+models implies a sense of certainty that we cannot reasonably expect
+[@Larose2005]. 
 
 # References
