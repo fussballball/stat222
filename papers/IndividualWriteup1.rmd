@@ -1,7 +1,7 @@
 ---
 title: "Individual Project Summary 3/13"
 author: "Yoni Ackerman"
-output: html_document
+output: pdf_document
 bibliography: library.bib
 ---
 
