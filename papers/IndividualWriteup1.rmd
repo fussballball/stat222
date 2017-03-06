@@ -1,0 +1,12 @@
+---
+title: "Individual Project Summary 3/13"
+author: "Yoni Ackerman"
+output: pdf_document
+bibliography: library.bib
+---
+
+## Abstract
+
+Despite alternative facts to the contrary, climate change is real and is arguably
+the most dangerous threat (in the mid- to long-term) facing human societies
+[@UCS2000]. 

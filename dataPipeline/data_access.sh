@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-# example: bash data_access.sh variables.txt 2 1
+# example: bash data_access.sh variables.txt 1 10 "mod"
 tmpRes=$4
 sptRes="g025"
 scenario="rcp26"
