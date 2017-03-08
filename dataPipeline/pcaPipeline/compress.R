@@ -18,6 +18,8 @@ varDat <- ldply(nc_files, function(nc){
     tmp <- nc
     nc <- nc_open(nc)
     cMat <- flatten_model(ncvar_get(nc, commandVar))
+    indices <- which(is.na(cMat), TRUE)
+    cMat[indices] <- cMat[indices[1], indices[2]-1]
     ## remove any na-values...
     ## perform two way pca:
     cMat <- try(tw_pca(t(cMat), N, M, TRUE, TRUE))
