@@ -15,10 +15,15 @@ M <- 2 ## compress temporily to M vars
 
 varDat <- ldply(nc_files, function(nc){
     model <- strsplit(nc, "_")[[1]][3]
+    tmp <- nc
     nc <- nc_open(nc)
     cMat <- flatten_model(ncvar_get(nc, commandVar))
+    ## remove any na-values...
     ## perform two way pca:
-    cMat <- tw_pca(t(cMat), N, M, TRUE, TRUE)
+    cMat <- try(tw_pca(t(cMat), N, M, TRUE, TRUE))
+    if(identical(class(cMat),"try-error")){
+        stop(paste0("the problematic model is: ", tmp))
+    }
     compressedData <- as.list(as.vector(cMat))
     names(compressedData) <- paste0(commandVar, 1:length(compressedData))
     data.frame(Model = model, compressedData)
