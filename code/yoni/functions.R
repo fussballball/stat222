@@ -66,3 +66,30 @@ down_filter <- function(cVar, N){
     }
     nVar
 }
+
+#' fig
+#'
+#' A function for captioning and referencing images. taken from
+#' http://tinyurl.com/zz7k4rh
+#' @param NONE
+#' @keywords
+#' @export
+#' @examples ```{r cars, echo=FALSE, fig.cap=fig$cap("cars",
+#'           "Here you see some interesting stuff about cars and such.")}
+#'            plot(cars)
+#'           ```
+#'            What you always wanted to know about cars is shown in
+#'            figure `r fig$ref("cars")`
+fig <- local({
+    i <- 0
+    ref <- list()
+    list(
+        cap=function(refName, text) {
+            i <<- i + 1
+            ref[[refName]] <<- i
+            paste("Figure ", i, ": ", text, sep="")
+        },
+        ref=function(refName) {
+            ref[[refName]]
+        })
+})

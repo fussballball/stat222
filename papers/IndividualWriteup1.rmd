@@ -5,6 +5,18 @@ output: pdf_document
 bibliography: library.bib
 ---
 
+```{r, echo = false}
+nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
+                              "data/cmip5-ng/"),
+                       recursive = TRUE, full.names = TRUE)
+
+nc <- nc_files[[1]]
+dat <- nc_open(nc)
+lat <- ncvar_get(dat, "lat")
+lon <- ncvar_get(dat, "lon")
+dat <- ncvar_get(dat, "tas")
+```
+
 # Introduction
 
 Despite alternative facts to the contrary, rapid, anthropogenic climate change is
@@ -17,15 +29,15 @@ however, comes with considerable caveats. For one, estimates of model uncertaint
 do not necessarily indicate actual climate uncertainty. The models (in our case CMIP5
 models) often share both code modules as well as the biases of their implementors.
 Thus the models, and their outputs do not represent independent draws from the space
-of "all possible future climates". Because of this, combining the models in the hopes
-of developing a "consensus climate" becomes statistically untenable [@Knutti2010].
-Moreover, crafting policy based on any such consensus will imply a sense of certainty
-that we cannot reasonably expect [@Larose2005]. 
+of "all possible future climate trajectories". Because of this, combining
+the models in the hopes of developing a "consensus climate" is statistically
+untenable [@Knutti2010]. Moreover, crafting policy based on any such consensus will
+imply a sense of certainty that we cannot reasonably expect [@Larose2005]. 
 
-The question then becomes: what can we do with these data? The most interesting option
-we have found so far is described in [@Knutti2010]. In this work, the authors attempt
-to describe a method of constructing a consensus model (a combination of the models)
-that takes into account their interdependence.
+The question then becomes: what can we do with these data? The most interesting
+option we have found so far is described in [@Knutti2010]. In their work, the
+authors attempt to describe a method of constructing a consensus model (a
+combination of the models) that takes into account their interdependence.
 
 They expand ("flatten") the
 model outputs (which are multidimensional arrays) into 1D vectors, then concatenate
@@ -34,18 +46,51 @@ represented by a single row vector in an general model-matrix. They then perform
 PCA to limit the model matrix to only orthogonal columns, and finally perform
 an MDS on the rows of this new matrix.
 
-Because their study includes a set of observational
-data, collected (and subsequently regrided for comparison to CMIP data) from a
-variety of sources, that allows them to go another step futher. They define a
-grid of points over the MDS space then use the distances of the MDS-space distance
-between observation and model points to try to define a prior over this space. This
-can then be used to draw independent samples from the MDS space and work backwards
+Because their study includes an observational dataset gathered independently from
+the CMIP data, they can go another step further in building a consensus model.
+They define a grid of points over the MDS space then use the distances of the
+MDS-space distance between observation and model points to try to define a prior
+over this space. This can then be used to draw independent samples from the MDS
+space and work backwards
 to turn that sample into a consensus model. Furthermore, they build a way to
 describe the overall behavior of that model by defining a new quantity for each
 model called Climate Sensitivity ("the equilibrium global mean surface temperature 
 response to a doubling of carbon dioxide"). They then interpolate this quantity
-over MDS space, allowing them to assign any point sampled from there to be immediately
-assigned a Climate Sensitivity value.
+over MDS space, allowing them to assign any point sampled from there to be
+immediately assigned a Climate Sensitivity value.
+
+# Data Summary
+
+We are using climate model output data made available by ETH Institute for
+Atmospheric and Climate Science, as well as observational data gathered
+(according to [@Knutti2010] Table 1). There are much more data available than we
+will be using: in addition to the observational dataset, there are data from a total
+of 46 models, 36 variables, under 10 different scenarios, combined using 47 different
+ensembles, and each available in daily/monthly/annual aggregations and in two
+spatial coordinate grids (one provided by the model source, and another interpolated
+to a 2.5 by 2.5 degree grid).
+
+To get an idea of the data in their most basic, time-series form, see figure 1. This
+plot shows time series data for surface temperature taken from the ACCESS1-3
+model, under the historicalGHG scenario, resampled with r1i1p1 ensemble, and grided
+to 2.5 by 2.5 degrees.
+
+```{r, echo = FALSE, fig.cap = fig$cap("Figure 1", "Basic Timeseries Data")}
+tmp <- data.frame(t = seq_along(dat[72, 32,]), x1 = dat[72, 32,],
+                  x2 = dat[5, 10,], lonlat = "(178.75, -11.25)",
+                  LonLat = "(11.25, -66.25)")
+
+ggplot(tmp) +
+    geom_line(aes(x = t, y = x1, color = lonlat)) +
+    geom_line(aes(x = t, y = x2, color = LonLat))
+```
+
+
+
+
+# Knutti et al.
+
+
 
 
 # Issues
