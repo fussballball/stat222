@@ -154,26 +154,21 @@ a model matrix and performing an MDS on the model distances.
 
 Our algorithm 
 
-A) for $mod^j$ in $J models:
-    for $var_i$ in $I variables$:
-        1) $M_{var_i} = mod^j_{.,.,.,var_i}$
-        2) $T = (flatten(M_{var_i}))^T$
-        3) Let $P$ such that $T^TT = P^T\Lambda_{spatial} P$, then:
-           $\tilde{M} = ((TP)_{.,1-N})^T$
-        4) Let $Q$ such that $\tilde{M}^T\tilde{M} = Q^T\Lambda_{time} Q$, then:
-           $\hat{M} = (\tilde{M}Q)_{.,1-K}$
-        5) $R_{var_i} = [\hat{M}_{1,.}, ..., \hat{M}_{N,.}]$
-    Let $mod^j_{row} = [R_{var_1}, ..., R_{var_I}]$
 
-B) Let $\mathcal{M} = [(mod^1_{row})^T, ..., (mod^J_{row})^T]^T$
-C) Perform Classical MDS:
-   Let $\Delta = [d_{uv}^2]$ where $d_uv = \sqrt{||mod^u_{row} - mod^v_{row}||}$
-   Let $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\mathbb{1}\mathbb{1}^T$
-   Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then:
-       $\hat{\mathcal{M}} = Q^B_{.,1-2} diag{\lambda_1, \lambda_2}^{frac{1}{2}}$,
-       where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and
-       $Q^B_{.,1-2}$ are the corresponding eigenvectors.
+- A) for $mod^j$ in $J models and for $var_i$ in $I variables$:
+        - 1) $M_{var_i} = mod^j_{.,.,.,var_i}$
+        - 2) $T = (flatten(M_{var_i}))^T$
+        - 3) Let $P$ such that $T^TT = P^T\Lambda_{spatial} P$, then: $\tilde{M} = ((TP)_{.,1-N})^T$
+        - 4) Let $Q$ such that $\tilde{M}^T\tilde{M} = Q^T\Lambda_{time} Q$, then: $\hat{M} = (\tilde{M}Q)_{.,1-K}$
+        - 5) $R_{var_i} = [\hat{M}_{1,.}, ..., \hat{M}_{N,.}]$
+      - Let $mod^j_{row} = [R_{var_1}, ..., R_{var_I}]$
 
+- B) Let $\mathcal{M} = [(mod^1_{row})^T, ..., (mod^J_{row})^T]^T$
+- C) Perform Classical MDS:
+   - Let $\Delta = [d_{uv}^2]$ where $d_uv = \sqrt{||mod^u_{row} - mod^v_{row}||}$
+   - Let $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\mathbb{1}\mathbb{1}^T$
+   - Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then: $\hat{\mathcal{M}} = Q^B_{.,1-2} diag{\lambda_1, \lambda_2}^{frac{1}{2}}$, where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and $Q^B_{.,1-2}$ are the corresponding eigenvectors.
+   
 We chose $N$ and $K$ by keeping the eigenvectors for each dimension that contain 90
 percent of the variation.
 
