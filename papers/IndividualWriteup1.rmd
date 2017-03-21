@@ -14,16 +14,13 @@ dat <- nc_open(nc)
 lat <- ncvar_get(dat, "lat")
 lon <- ncvar_get(dat, "lon")
 dat <- ncvar_get(dat, "tas")
-dat <- down_filter(dat, 4)
-mat <- flatten_model(dat)
-dMat <- dist(mat)
 ```
 
 # Introduction
 
 Rapidly progressing, anthropogenic climate change is
 not only real, but arguably the most dangerous threat facing human societies
-and global stability [@UCS2000]. In order to predict spatio-temporal
+and global stability (Union of Concerned Scientists). In order to predict spatio-temporal
 changes in global climate under a variety of scenarios and assumptions, climate
 researchers developed computational models to emulate long-term atmosphere and ocean
 dynamics. There is hope that these models can provide policy and decision makers with
@@ -74,8 +71,7 @@ plot shows time series data for surface temperature taken from the ACCESS1-3
 model, under the historicalGHG scenario, resampled with r1i1p1 ensemble, and grided
 to 2.5 by 2.5 degrees.
 
-```{r, echo = FALSE, fig.cap = "Surface Temperature at 
-(178.75,-11.25) and (11.25, -66.25)"), label = "Figure 1"}
+```{r, echo = FALSE, fig.cap = "Surface Temperature at (178.75,-11.25) and (11.25, -66.25)"}
 tmp <- data.frame(t = seq_along(dat[72, 32,]), x1 = dat[72, 32,],
                   x2 = dat[5, 10,], lonlat = "(178.75, -11.25)",
                   LonLat = "(11.25, -66.25)")
@@ -90,9 +86,8 @@ time series' auto-covariance plots (see figure 2). The degree to which this
 auto-covariance holds suggest that these data are suited for compression - a
 characteristic exploited by Knutti et al.
 
-```{r, fig.cap = "Auto-covariance boxplots over the lag values for the timeseries at
-every lat/long pair", label = "Figure 2"}
-knitr::include_graphics("boxpot.jpg")
+```{r, fig.cap = "Auto-covariance boxplots over the lag values for the timeseries at every lat/long pair"}
+#knitr::include_graphics("/accounts/grad/yoni/Documents/Stat222/papers/boxpot.jpg")
 ```
 
 In addition we can look at the entire spatial-map at an instance in time for
@@ -100,15 +95,17 @@ a single model (see figure 3):
 
 ```{r, echo = FALSE,
 fig.cap = "Geo-spatial variation in air surface tempurature (K) 223 years after
-simulation start", label = "Figure 3"}
+simulation start"}
 knitr::include_graphics("presPic.png")
 ```
 
 Here again we find strong auto-correlation, but this time of the spatial variety (
 see figure 4).
 
-```{r, echo = FALSE, fig.cap = "Correlogram for Geo-spatial
-data 231 months after simulation start", label = "Figure 4"}
+```{r, echo = FALSE, fig.cap = "Correlogram for Geo-spatial data 231 months after simulation start"}
+dat <- down_filter(dat, 4)
+mat <- flatten_model(dat)
+dMat <- dist(mat)
 time <- 231
 skel <- expand.grid(lon = 1:dim(dat)[1], lat = 1:dim(dat)[2])
 skel$z <- NA
@@ -127,8 +124,7 @@ We can also look at the euclidean distance of all the timeseries to give us
 an idea of the amount of redundancy in the data (keeping in mind this is for
 air temperature at surface only):
 
-```{r, echo = FALSE, fig.cap = "Heat map of spatial similarity of TAS time series",
-label = "Figure 5"}
+```{r, echo = FALSE, fig.cap = "Heat map of spatial similarity of TAS time series"}
 heatmap(as.matrix(dMat), keep.dendro = FALSE)
 ```
 
@@ -162,9 +158,9 @@ A) for $mod^j$ in $J models:
     for $var_i$ in $I variables$:
         1) $M_{var_i} = mod^j_{.,.,.,var_i}$
         2) $T = (flatten(M_{var_i}))^T$
-        3) Let $P$ such that $T^TT = P^T\Lambda_{sp} P$, then:
+        3) Let $P$ such that $T^TT = P^T\Lambda_{spatial} P$, then:
            $\tilde{M} = ((TP)_{.,1-N})^T$
-        4) Let $Q$ such that $\tilde{M}^T\tilde{M} = Q^T\Lambda_{temp} Q$, then:
+        4) Let $Q$ such that $\tilde{M}^T\tilde{M} = Q^T\Lambda_{time} Q$, then:
            $\hat{M} = (\tilde{M}Q)_{.,1-K}$
         5) $R_{var_i} = [\hat{M}_{1,.}, ..., \hat{M}_{N,.}]$
     Let $mod^j_{row} = [R_{var_1}, ..., R_{var_I}]$
@@ -173,10 +169,10 @@ B) Let $\mathcal{M} = [(mod^1_{row})^T, ..., (mod^J_{row})^T]^T$
 C) Perform Classical MDS:
    Let $\Delta = [d_{uv}^2]$ where $d_uv = \sqrt{||mod^u_{row} - mod^v_{row}||}$
    Let $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\mathbb{1}\mathbb{1}^T$
-   Let $Q_B$ such that $B = Q_B^T\Lambda_{dist}Q_B$, then:
-       $\hat{\mathcal{M}} = Q_B_{.,1-2} diag{\lambda_1, \lambda_2}^{frac{1}{2}}$,
+   Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then:
+       $\hat{\mathcal{M}} = Q^B_{.,1-2} diag{\lambda_1, \lambda_2}^{frac{1}{2}}$,
        where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and
-       $Q_B_{.,1-2}$ are the corresponding eigenvectors.
+       $Q^B_{.,1-2}$ are the corresponding eigenvectors.
 
 We chose $N$ and $K$ by keeping the eigenvectors for each dimension that contain 90
 percent of the variation.

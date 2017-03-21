@@ -10,8 +10,8 @@ nc_files <- list.files("cmip5-ng/", recursive = TRUE, full.names = TRUE)
 ## retrieve the variable passed by the commandline call
 commandVar <- args[1]
 ## should add to command args:
-N <- 4 ## compress temporily to N vars
-M <- 2 ## compress temporily to M vars
+N <- 40 ## compress temporily to N vars
+M <- 20 ## compress temporily to M vars
 
 varDat <- ldply(nc_files, function(nc){
     model <- strsplit(nc, "_")[[1]][3]
