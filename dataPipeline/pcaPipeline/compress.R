@@ -4,14 +4,14 @@
 source("../../code/yoni/functions.R")
 
 ## get command line arguments
-args = commandArgs(trailingOnly=TRUE)
-nc_files <- list.files("cmip5-ng/", recursive = TRUE, full.names = TRUE)
-
 ## retrieve the variable passed by the commandline call
-commandVar <- args[1]
-## should add to command args:
-N <- 4 ## compress temporily to N vars
-M <- 2 ## compress temporily to M vars
+args = commandArgs(trailingOnly=TRUE)
+commandVar <- args[1] ## the variable we're computing on
+N <- as.numeric(args[2]) ## compress temporily to N vars
+M <- as.numeric(args[3]) ## compress temporily to M vars
+
+nc_files <- list.files("cmip5-ng/", pattern = commandVar,
+                       recursive = TRUE, full.names = TRUE)
 
 varDat <- ldply(nc_files, function(nc){
     model <- strsplit(nc, "_")[[1]][3]

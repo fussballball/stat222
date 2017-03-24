@@ -8,20 +8,14 @@ options(stringsAsFactors = FALSE)
         )
     }
     
-    libs <- c("plyr","dplyr", "ggplot2","reshape2",
-              "readxl", "pwr", "broom", "httr",
-              "foreign", "helperFunctions", "rvest",
-              ## "Hmisc",
-              "psychometric")
+    libs <- c("plyr", "ncdf4", "digest",
+              "reshape2", "dplyr")
 
     sapply(libs, quietLoad)
     rm(libs, quietLoad)
 
-    cat("\nHello!\n") 
 }
 
 .Last <- function(){
-    
-    cat("\nGoodbye!\n")
     
 }

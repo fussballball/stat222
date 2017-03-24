@@ -31,7 +31,7 @@ flatten_model <- function(cVar){
 #' @param N - number to compress to in Y
 #' @param M - number to compress to in X
 #' @export
-tw_pca <- function(mat, N, M, .center, .scale){
+tw_pca <- function(mat, N, M, .center = TRUE, .scale = TRUE){
     mat <- prcomp(mat, scale = .scale, center = .center)[["x"]][,1:N]
     prcomp(t(mat), scale = .scale, center = .center)[["x"]][,1:M]
 }
