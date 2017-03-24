@@ -152,8 +152,7 @@ a row representing the entire model in compressed form.
 With this row of data, we then proceeded with the Knutti et al methods, assembling
 a model matrix and performing an MDS on the model distances.
 
-Our algorithm 
-
+Our algorithm:
 
 - A) for $mod^j$ in $J$ models and for $var_i$ in $I$ variables:
 
@@ -171,7 +170,7 @@ Our algorithm
 
      - Let $\Delta = [d_{uv}^2]$ where $d_uv = \sqrt{||mod^u_{row} - mod^v_{row}||}$
      - Let $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\textbf{1}\textbf{1}^T$
-     - Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then: $\hat{\mathcal{M}} = Q^B_{.,1-2} diag\{\lambda_1, \lambda_2\}^{frac{1}{2}}$, where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and $Q^B_{.,1-2}$ are the corresponding eigenvectors.
+     - Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then: $\hat{\mathcal{M}} = Q^B_{.,1-2} diag\{\lambda_1, \lambda_2\}^{\frac{1}{2}}$, where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and $Q^B_{.,1-2}$ are the corresponding eigenvectors.
    
 We chose $N$ and $K$ by keeping the eigenvectors for each dimension that contain 90
 percent of the variation.
