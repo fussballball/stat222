@@ -15,7 +15,6 @@ nc_files <- list.files("cmip5-ng/", pattern = commandVar,
 varDat <- ldply(nc_files, function(nc){
     ## test:
     ## nc <- "cmip5-ng//tas/tas_mon_CESM1-CAM5_historicalGHG_r1i1p1_g025.nc"
-    
     model <- strsplit(nc, "_")[[1]][3]
     nc <- nc_open(nc)
     tmp <- ncvar_get(nc, commandVar)
@@ -31,7 +30,7 @@ varDat <- ldply(nc_files, function(nc){
     ind2[, 2] <- indices[, 2] + 1
     cMat[indices] <- (cMat[ind1] + cMat[ind2]) / 2
 
-    ## perform two way pca:xs
+    ## one way pca:xs
     cMat <- try(prcomp(cMat)[["x"]][,1:N])
     if(identical(class(cMat),"try-error")){
         stop(paste0("there is a problem with model ", tmp))
@@ -41,7 +40,7 @@ varDat <- ldply(nc_files, function(nc){
     compressedData <- as.list(as.vector(cMat))
     names(compressedData) <- paste0(commandVar, 1:length(compressedData))
     data.frame(Model = model, compressedData)
-})
+}, .progress = "text")
 
 ## write the data to a csv file
 write.csv(varDat, file = paste0(commandVar,"_compressed.csv"))
