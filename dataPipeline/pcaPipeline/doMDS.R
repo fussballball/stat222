@@ -4,17 +4,17 @@ args = commandArgs(trailingOnly=TRUE)
 load("pcaData.rda")
 
 ## scale and center the data
-d <- scale(pcaDat[,-1])
+d <- scale(pcaDat[,-c(1,2)])
 
 d <- dist(d) # euclidean distances between the rows
 fit <- cmdscale(d,eig=TRUE, k=2) # k is the number of dim
 
 x <- fit$points[,1]
 y <- fit$points[,2]
-plotDat <- data.frame(X = x, Y = y, names = pcaDat[,1])
+plotDat <- data.frame(X = x, Y = y, names = pcaDat[,2])
 
-save(plotDat, filename = paste0("mdsData_", args[1], "_",
-                args[2], ".rda")
+save(plotDat, file = paste0("mdsData_", args[1], "_",
+                args[2], ".rda"))
 
 plt <- ggplot(plotDat, aes(x = X, y = Y, shape = as.factor(names),
                            color = as.factor(names))) +

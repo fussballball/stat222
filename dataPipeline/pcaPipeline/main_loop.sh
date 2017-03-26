@@ -15,12 +15,18 @@ while read var; do
     fi
     
     # now pull the data into R, compress it, and store it
+    echo "compressing $var"
     Rscript compress.R "$var" $N $M
+    echo "$var compression complete"
     
 done < pca_variables.txt
 
 # melt and concatenate all the compressed data:
+echo "merging all variables"
 Rscript merge_data.R
+echo "merge complete"
 
 # run the mds and save an image
+echo "running MDS"
 Rscript doMDS.R $N $M
+echo "MDS complete"

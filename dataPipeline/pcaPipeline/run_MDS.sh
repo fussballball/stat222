@@ -1,7 +1,10 @@
 #!/bin/bash
 
-for i in $(seq 1 $END); do
+END=20
 
+for i in $(seq 10 10 20); do
+
+    bash main_loop.sh $i $i
     
 done
 
