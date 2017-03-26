@@ -13,10 +13,17 @@ nc_files <- list.files("cmip5-ng/", pattern = commandVar,
                        recursive = TRUE, full.names = TRUE)
 
 varDat <- ldply(nc_files, function(nc){
+    ## test:
+    ## nc <- "cmip5-ng//tas/tas_mon_CESM1-CAM5_historicalGHG_r1i1p1_g025.nc"
+    
     model <- strsplit(nc, "_")[[1]][3]
-    tmp <- nc
     nc <- nc_open(nc)
-    cMat <- flatten_model(ncvar_get(nc, commandVar))
+    tmp <- ncvar_get(nc, commandVar)
+    
+    ## remove the following time points (they're missing for some
+    ## models...)
+    cMat <- flatten_model(tmp[ , , -c(1069:1091)])
+    
     ## remove any na-values...
     indices <- which(is.na(cMat), TRUE)
     ind2 <- ind1 <- indices
@@ -25,10 +32,12 @@ varDat <- ldply(nc_files, function(nc){
     cMat[indices] <- (cMat[ind1] + cMat[ind2]) / 2
 
     ## perform two way pca:xs
-    cMat <- try(prcomp(cMat, scale = .scale, center = .center)[["x"]][,1:N])
+    cMat <- try(prcomp(cMat)[["x"]][,1:N])
     if(identical(class(cMat),"try-error")){
-        stop(paste0("the problematic model is: ", tmp))
+        stop(paste0("there is a problem with model ", tmp))
     }
+
+    ## string the data out
     compressedData <- as.list(as.vector(cMat))
     names(compressedData) <- paste0(commandVar, 1:length(compressedData))
     data.frame(Model = model, compressedData)
