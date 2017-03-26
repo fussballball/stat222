@@ -1,8 +1,13 @@
 #!/bin/bash
 
 ## set dimensions of compression
-N=$1
-M=$2
+N=$2
+if [ "$1" = "2w" ]; then
+    M=$3
+else 
+    M="full"
+fi
+
 
 while read var; do
     # check to see if we already have the data loaded,
@@ -16,7 +21,12 @@ while read var; do
     
     # now pull the data into R, compress it, and store it
     echo "compressing $var"
-    Rscript compress.R "$var" $N $M
+    if [ "$1" = "2w" ]; then
+	Rscript compress_two_way.R "$var" $N $M
+    else 
+	Rscript compress_one_way.R "$var" $N
+    fi
+
     echo "$var compression complete"
     
 done < pca_variables.txt

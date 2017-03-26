@@ -8,7 +8,6 @@ source("../../code/yoni/functions.R")
 args = commandArgs(trailingOnly=TRUE)
 commandVar <- args[1] ## the variable we're computing on
 N <- as.numeric(args[2]) ## compress temporily to N vars
-M <- as.numeric(args[3]) ## compress temporily to M vars
 
 nc_files <- list.files("cmip5-ng/", pattern = commandVar,
                        recursive = TRUE, full.names = TRUE)
@@ -18,11 +17,15 @@ varDat <- ldply(nc_files, function(nc){
     tmp <- nc
     nc <- nc_open(nc)
     cMat <- flatten_model(ncvar_get(nc, commandVar))
-    indices <- which(is.na(cMat), TRUE)
-    cMat[indices] <- cMat[indices[1], indices[2]-1]
     ## remove any na-values...
-    ## perform two way pca:
-    cMat <- try(tw_pca(t(cMat), N, M, TRUE, TRUE))
+    indices <- which(is.na(cMat), TRUE)
+    ind2 <- ind1 <- indices
+    ind1[, 2] <- indices[, 2] - 1
+    ind2[, 2] <- indices[, 2] + 1
+    cMat[indices] <- (cMat[ind1] + cMat[ind2]) / 2
+
+    ## perform two way pca:xs
+    cMat <- try(prcomp(cMat, scale = .scale, center = .center)[["x"]][,1:N])
     if(identical(class(cMat),"try-error")){
         stop(paste0("the problematic model is: ", tmp))
     }
