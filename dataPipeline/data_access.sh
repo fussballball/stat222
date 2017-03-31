@@ -1,9 +1,9 @@
 #!/bin/bash 
 
-# example: bash data_access.sh variables.txt 1 10 "mod"
+# example: bash data_access.sh variables.txt 1 10 "mon"
 tmpRes=$4
 sptRes="g025"
-scenario="rcp26"
+scenario="historicalGHG"
 ensemble="r1i1p1"
 
 head -n $2 $1 > tmp.txt

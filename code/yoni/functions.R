@@ -66,3 +66,29 @@ down_filter <- function(cVar, N){
     }
     nVar
 }
+
+#' plot_scatter_mat
+#'
+#' plot a scatter matrix of vars in a df. I encourage
+#' scaling before using, though it shouldn't matter.
+#' @param df - dataframe with vars of interest
+#' @export
+plot_scatter_mat <- function(df){
+## from:
+## https://www.r-bloggers.com/how-to-display-scatter-plot-matrices-with-r-and-lattice/
+    splom(df,
+          panel=panel.hexbinplot,
+          diag.panel = function(x, ...){
+              yrng <- current.panel.limits()$ylim
+              d <- density(x, na.rm=TRUE)
+              d$y <- with(d, yrng[1] + 0.95 * diff(yrng) * y / max(y) )
+              panel.lines(d)
+              diag.panel.splom(x, ...)
+          },
+          lower.panel = function(x, y, ...){
+              panel.hexbinplot(x, y, ...)
+              panel.loess(x, y, ..., col = 'red')
+          },
+          pscale=0, varname.cex=0.7
+          )
+}
