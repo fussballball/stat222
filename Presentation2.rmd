@@ -1,0 +1,60 @@
+---
+title: "Project Report II"
+author: "Yoni Ackerman, Dario Cantore, Zhenqi Wang"
+output:  ioslides_presentation
+bibliography: papers/library.bib
+---
+
+```{r, echo = FALSE}
+nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
+                              "data/cmip5-ng/"),
+                       recursive = TRUE, full.names = TRUE)
+nc <- nc_files[[1]]
+dat <- nc_open(nc)
+lat <- ncvar_get(dat, "lat")
+lon <- ncvar_get(dat, "lon")
+dat <- ncvar_get(dat, "tas")
+```
+
+## Recap
+
+Data is spatial timeseries output from:
+
+- 46 climate models
+- 36 Variables (surface temperature, shortwave radiation, rainfall, etc.)
+- 10 Scenarios (historical starting values, different GHG projections, etc.)
+- 47 Ensembles (averages of model runs - make predictions more robust)
+
+Challenges:
+
+- 17 Terabytes of high-dimensional data
+- Model non-independence 
+- Very little domain knowledge
+
+## Quick Glimpse
+
+```{r, echo = FALSE, fig.width = 8, fig.height = 5}
+
+tmp <- dat[ , , 400]
+tmp <- ldply(1:dim(tmp)[1], function(i){
+    ldply(1:dim(tmp)[2], function(j){
+       data.frame(lon = i, lat = j, tas = tmp[i, j])
+       })
+    })     
+
+ggplot(tmp, aes(x = lon, y = lat, fill = tas)) +
+	    geom_raster(interpolate = TRUE) +
+            ggtitle("Variation in Surface Temp (K) at 400 months")
+```
+
+## Motivation
+- How to build consensus model [@Knutti2010]?
+- How non-independent are the models [@Hong 1996]?
+- Do the independence relationships change through time and across scenarios?
+- How can we best visualize these data and our results?
+
+## Compression
+
+## Correlations
+
+## References
