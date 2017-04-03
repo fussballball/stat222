@@ -1,7 +1,10 @@
 ## retrieve desired files (one for each var)
 nc_files <- list.files("cmip5-ng/", recursive = TRUE, full.names = TRUE)
 
-time <- dim(ncvar_get(nc_open(nc_files[1])))[3]
+tmp <- ncvar_get(nc_open(nc_files[1]))
+
+time <- dim(tmp)[3]
+space <- dim(tmp)[2] * dim(tmp)[1]
 
 ## store var names
 vars <- unlist(lapply(strsplit(nc_files, "/"), function(i) i[3]))
@@ -17,7 +20,7 @@ names(flDat) <- vars ## link datasets to var names
 
 ## reassemble the model with all vars at time t
 ## store as a list indexed by time
-modt <- llply(1:time, function(i){
+mod.t <- llply(1:time, function(i){
     timeCols <- llply(vars, function(v){
         flDat[[v]][,i]
     })
@@ -26,4 +29,15 @@ modt <- llply(1:time, function(i){
     scale(dat)
 })
 
-save(modt, file = "ACCESS1_3_flat.rda")
+## reassemble the model with all vars at point s
+## store as a list indexed by space
+mod.s <- llply(1:space, function(i){
+    spaceCols <- llply(vars, function(v){
+        flDat[[v]][i,]
+    })
+    dat <- t(do.call(rbind, spaceCols))
+    colnames(dat) <- vars
+    scale(dat)
+})
+
+save(mod.t, mod.s, file = "ACCESS1_3_flat.rda")

@@ -31,7 +31,7 @@ predictive tools for climate change preparedness and mitigation (see, for exampl
 [UCS](http://climateprospectus.org/)). A statistical hurdle, however, impedes this
 goal: model uncertainty. Much research
 has gone into understanding and limiting the sources of model uncertainty
-[@Hawkins2009, @Brohan2006, @Regier2013].
+[@Hawkins2009; @Brohan2006; @Regier2013].
 Despite this progress, there remains a deeper concern
 regarding model independence and its effect on uncertainty quantification.
 
@@ -264,6 +264,6 @@ any tests for indepence should fail could act as an estimate for the models'
 non-independence. Finding a set of principle components that decently well
 approximate the many variables involved in each model could give us a way to 
 further compress each model into a single timeseries. We would then be able to
-use known tests [@Hong1996],[@Koch2013] to determine those timeseries' independence.
+use known tests [@Hong1996; @Koch2013] to determine those timeseries' independence.
 
 # References

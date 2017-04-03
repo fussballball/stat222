@@ -92,3 +92,14 @@ plot_scatter_mat <- function(df){
           pscale=0, varname.cex=0.7
           )
 }
+
+#' coll_diff
+#'
+#' do diff on a column of a dataframe
+#' @param df dataframe of interest
+#' @param col name of column to diff
+#' @export
+col_diff <- function(df, col){
+    df[, paste0(col, "_diff")] <- c(NA, diff(df[,col]))
+    df
+}
