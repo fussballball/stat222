@@ -1,7 +1,10 @@
 ---
 title: "Project Report II"
 author: "Yoni Ackerman, Dario Cantore, Zhenqi Wang"
-output:  ioslides_presentation
+output: 
+  ioslides_presentation:
+    fig_width: 6
+    fig_height: 4
 bibliography: papers/library.bib
 ---
 
@@ -14,6 +17,23 @@ dat <- nc_open(nc)
 lat <- ncvar_get(dat, "lat")
 lon <- ncvar_get(dat, "lon")
 dat <- ncvar_get(dat, "tas")
+```
+
+
+----
+
+```{r, echo = FALSE, fig.width = 10, fig.height = 6}
+tmp <- dat[ , , 400]
+tmp <- ldply(1:dim(tmp)[1], function(i){
+    ldply(1:dim(tmp)[2], function(j){
+       data.frame(lon = i, lat = j, tas = tmp[i, j])
+       })
+    })     
+
+tmp$tas <- tmp$tas * (9/5) - 459.67
+ggplot(tmp, aes(x = lon, y = lat, fill = tas)) +
+	    geom_raster(interpolate = TRUE) +
+            ggtitle("Variation in Surface Temp (F) at 400 months")
 ```
 
 ## Recap
@@ -31,30 +51,57 @@ Challenges:
 - Model non-independence 
 - Very little domain knowledge
 
-## Quick Glimpse
+## Our Questions
+- How to compare and combine models [@Knutti2010]? 
+- How non-independent are the models [@Hong1996; @Horvath2015]?
+- Do either of the above change through time / across scenarios?
 
-```{r, echo = FALSE, fig.width = 8, fig.height = 5}
+# Before comparing, we compress:
 
-tmp <- dat[ , , 400]
-tmp <- ldply(1:dim(tmp)[1], function(i){
-    ldply(1:dim(tmp)[2], function(j){
-       data.frame(lon = i, lat = j, tas = tmp[i, j])
-       })
-    })     
-
-ggplot(tmp, aes(x = lon, y = lat, fill = tas)) +
-	    geom_raster(interpolate = TRUE) +
-            ggtitle("Variation in Surface Temp (K) at 400 months")
+## Method One
+<div class="columns-2">
+```{r, fig.width = 4, fig.height = 4, fig.caption = "2 PC's", echo = FALSE}
+include_graphics("papers/MDS_2_full_2017-03-26.pdf")
 ```
 
-## Motivation
-- How to build consensus model [@Knutti2010]?
-- How non-independent are the models [@Hong 1996]?
-- Do the independence relationships change through time and across scenarios?
-- How can we best visualize these data and our results?
+```{r, fig.width = 4, fig.height = 4, fig.caption = "5 PC's", echo = FALSE}
+include_graphics("papers/MDS_5_full_2017-03-26.pdf")
+```
+</div>
 
-## Compression
+## Method Two
+<div class="columns-2">
+```{r, fig.width = 4, fig.height = 4, fig.caption = "5 PC's", echo = FALSE}
+include_graphics("papers/MDS_5_5_2017-03-25.pdf")
+```
 
-## Correlations
+```{r, fig.width = 4, fig.height = 4, fig.caption = "2 PC's", echo = FALSE}
+include_graphics("papers/MDS_20_20_2017-03-25.pdf")
+```
+</div>
+
+# Before testing for independence, look at correlations:
+
+----
+
+<div class="columns-2">
+```{r, fig.width = 10, fig.height = 5, echo = FALSE}
+include_graphics("papers/corr.pdf")
+```
+
+For each model, each spatial point, and each variable pair
+we calculate cross correlation at lag 0, then find the mean
+and standard deviation of all correlations.
+
+  
+<\div>
+
+# Independence testing:
+
+----
+
+```{r, fig.width = 7, fig.height = 5, echo = FALSE}
+include_graphics("papers/inde.png")
+```
 
 ## References
