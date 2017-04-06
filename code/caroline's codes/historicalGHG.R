@@ -1,5 +1,5 @@
 
-setwd("/Users/Lee/Google Drive/UCB/climate/data")
+setwd("~/Documents/Stat222/data")
 
 # package install and require
 install.packages("ncdf4")

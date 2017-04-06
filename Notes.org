@@ -46,3 +46,6 @@
   - save to output file (R)
   - remove data
   
+* Ideas
+ - try time-series cross-validation on knutti method
+ - compare to naive consensus
