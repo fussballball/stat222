@@ -2,7 +2,6 @@
 
 var=$1
 tmpRes=$2
-
 # I'm going to keep these fixed for now
 sptRes="g025"
 scenario="historicalGHG"
