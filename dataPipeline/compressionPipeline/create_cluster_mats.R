@@ -1,6 +1,7 @@
 ##############################
 ## use mds.data to start
 ##############################
+
 load("mds_data.rda")
 mds.data <- mds.data[-which(mds.data$model== "obs"),]
 
