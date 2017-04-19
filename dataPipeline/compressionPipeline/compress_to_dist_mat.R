@@ -18,7 +18,6 @@ path <- "/accounts/grad/yoni/Documents/Stat222/data/cmip5-ng/"
 ####################
 ## Assemble data
 ####################
-var <- "rlutcs"
 var.files <- list.files(paste0(path, var), full.names = TRUE)
 model.data <- ldply(var.files, function(var.file){
     model <- strsplit(var.file, "_")[[1]][3]
