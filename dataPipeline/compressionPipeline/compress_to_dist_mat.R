@@ -28,7 +28,7 @@ model.data <- ldply(var.files, function(var.file){
     data <- data[,2:ncol(data)] - data[,1:(ncol(data) - 1)]
     data <- as.data.frame(data)
     colnames(data) <- paste0(var, 1:ncol(data))
-    data[,1:1631] 
+    data <- data[,1:1631] 
     data$model <- model
     data$t <- 1:nrow(data)
     ## The simulations were run for different lengths
