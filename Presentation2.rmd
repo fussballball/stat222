@@ -1,0 +1,133 @@
+---
+title: "Project Report II"
+author: "Yoni Ackerman, Dario Cantore, Zhenqi Wang"
+output: 
+  ioslides_presentation:
+    fig_width: 6
+    fig_height: 4
+bibliography: papers/library.bib
+---
+
+```{r, echo = FALSE}
+nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
+                              "data/cmip5-ng/"),
+                       recursive = TRUE, full.names = TRUE)
+nc <- nc_files[[1]]
+dat <- nc_open(nc)
+lat <- ncvar_get(dat, "lat")
+lon <- ncvar_get(dat, "lon")
+dat <- ncvar_get(dat, "tas")
+```
+
+
+----
+
+```{r, echo = FALSE, fig.width = 10, fig.height = 6}
+tmp <- dat[ , , 400]
+tmp <- ldply(1:dim(tmp)[1], function(i){
+    ldply(1:dim(tmp)[2], function(j){
+       data.frame(lon = i, lat = j, tas = tmp[i, j])
+       })
+    })     
+
+tmp$tas <- tmp$tas * (9/5) - 459.67
+ggplot(tmp, aes(x = lon, y = lat, fill = tas)) +
+	    geom_raster(interpolate = TRUE) +
+            ggtitle("Variation in Surface Temp (F) at 400 months")
+```
+
+## Recap
+
+Data is spatial timeseries output from:
+
+- 46 climate models
+- 36 Variables (surface temperature, shortwave radiation, rainfall, etc.)
+- 10 Scenarios (historical starting values, different GHG projections, etc.)
+- 47 Ensembles (averages of model runs - make predictions more robust)
+
+Challenges:
+
+- 17 Terabytes of high-dimensional data
+- Model non-independence 
+- Very little domain knowledge
+
+## Our Questions
+- How to compare and combine models [@Sanderson2012]? 
+- How non-independent are the models [@Hong1996; @Horvath2015]?
+- Do either of the above change through time / across scenarios?
+
+# Before comparing, we compress:
+
+## Method One
+<div class="columns-2">
+```{r, fig.width = 4, fig.height = 4, fig.caption = "2 PC's", echo = FALSE}
+include_graphics("papers/MDS_2_full_2017-03-26.pdf")
+```
+
+```{r, fig.width = 4, fig.height = 4, fig.caption = "5 PC's", echo = FALSE}
+include_graphics("papers/MDS_5_full_2017-03-26.pdf")
+```
+</div>
+
+## Method Two
+<div class="columns-2">
+```{r, fig.width = 4, fig.height = 4, fig.caption = "5 PC's", echo = FALSE}
+include_graphics("papers/MDS_5_5_2017-03-25.pdf")
+```
+
+```{r, fig.width = 4, fig.height = 4, fig.caption = "2 PC's", echo = FALSE}
+include_graphics("papers/MDS_20_20_2017-03-25.pdf")
+```
+</div>
+
+# Before testing for independence, look at correlations:
+
+----
+
+<div class="columns-2">
+
+```{r, fig.width = 10, fig.height = 5, echo = FALSE}
+include_graphics("papers/corr.pdf")
+```
+
+For each model, each spatial point, and each variable pair
+we calculate cross correlation at lag 0, then find the mean
+and standard deviation of all correlations.
+
+</div>
+
+# Independence testing:
+
+----
+
+```{r, fig.width = 7, fig.height = 5, echo = FALSE}
+include_graphics("papers/inde.png")
+```
+
+# Appendix
+
+## Cross Correlation
+
+The cross correlation at lag $\tau$ between two timeseries $X_t$ and $Y_t$ is:
+
+$\rho_{XY}(\tau)$ = $\frac{\mathbb{E}(X_t - \mu_{X})(Y_{t+\tau} - \mu_Y)}{\sigma_X \sigma_Y}$
+
+## Principal component analysis
+
+Given standardized matrix $M$, we can find matrix $P$ such that:
+
+$M^TM = P^T\Lambda P$. Then $\tilde{M} = PM$ is the rotation of $M$ into its principal components.
+
+## Multidimentional Scaling
+
+Let $\Delta$ be a distance matrix and $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\textbf{1}\textbf{1}^T$
+
+Then there exists $Q$ such that $B = Q^{T}\Lambda Q$, and $\tilde{\Delta} = Q_{.,1:2} diag\{\lambda_1, \lambda_2\}^{\frac{1}{2}}$ is a two-dimensional representation of $\Delta$.
+
+## Timeseries Independence
+
+```{r, fig.width = 7, fig.height = 5, echo = FALSE}
+include_graphics("papers/formula.pdf")
+```
+
+## References
