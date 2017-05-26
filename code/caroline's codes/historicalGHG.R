@@ -1,5 +1,4 @@
-
-setwd("/Users/Lee/Google Drive/UCB/climate/data")
+setwd("~/Documents/Stat222/data")
 
 # package install and require
 install.packages("ncdf4")
@@ -92,7 +91,11 @@ transform<-function(data){
 models<-read.csv("his_model.txt",header=FALSE,stringsAsFactors = F)[,1]
 
 # variable name
+<<<<<<< HEAD
 var="tas"
+=======
+var="pr"
+>>>>>>> DarioDoMDS
 dir<-paste0("./",var,"-his/",var)
 data_list<-list.files(dir)
 data_r <- nc_open(paste0(dir,"/",data_list[1]))
@@ -321,4 +324,8 @@ ggplot()+geom_point(data=points,aes(x=x,y=y,shape=names,color=names),size=3)+
   scale_shape_manual(values=seq(0,20))+
   annotate("segment", x=-Inf,xend=Inf,y=0,yend=0,arrow=arrow(length=ggplot2::unit(0.3,"cm")),size=0.5,color="grey60") +
   annotate("segment", y=-Inf,yend=Inf,x=0,xend=0,arrow=arrow(length=ggplot2::unit(0.3,"cm")),size=0.5,color="grey60")+
+<<<<<<< HEAD
   ggtitle(paste0("TS-HistoricalGHG vs Observation"))
+=======
+  ggtitle(paste0("TS-HistoricalGHG vs Observation"))
+>>>>>>> DarioDoMDS

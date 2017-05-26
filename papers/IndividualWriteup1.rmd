@@ -1,0 +1,269 @@
+---
+title: "Individual Project Summary I"
+author: "Yoni Ackerman"
+output: 
+  pdf_document:
+    fig_width: 7
+    fig_height: 6
+    fig_caption: true
+bibliography: library.bib
+---
+
+```{r, echo = FALSE}
+nc_files <- list.files(paste0("/accounts/grad/yoni/Documents/Stat222/",
+                              "data/cmip5-ng/"),
+                       recursive = TRUE, full.names = TRUE)
+nc <- nc_files[[1]]
+dat <- nc_open(nc)
+lat <- ncvar_get(dat, "lat")
+lon <- ncvar_get(dat, "lon")
+dat <- ncvar_get(dat, "tas")
+```
+
+# Introduction
+
+Anthropogenic climate change is the most dangerous threat facing human societies
+and global stability (Union of Concerned Scientists). In order to predict 
+spatio-temporal changes in global climate under a variety of scenarios and 
+assumptions, climate researchers are developing computational models to emulate 
+long-term atmosphere and ocean
+dynamics. There is hope that these models can provide policy makers with
+predictive tools for climate change preparedness and mitigation (see, for example,
+[UCS](http://climateprospectus.org/)). A statistical hurdle, however, impedes this
+goal: model uncertainty. Much research
+has gone into understanding and limiting the sources of model uncertainty
+[@Hawkins2009; @Brohan2006; @Regier2013].
+Despite this progress, there remains a deeper concern
+regarding model independence and its effect on uncertainty quantification.
+
+Because the models often share both code modules as well as the
+biases of their implementors, their outputs do not represent
+independent draws from a space of "all possible future climate trajectories". 
+Thus, agreement in model predictions does not grant greater certainty [@Larose2005, @Pirtle]. 
+
+Work has been done to accomodate the issue of model non-independence. 
+In [@Sanderson2015] Knutti et al describe a method to interpolate model 
+characteristics that takes into account their interdependence. By then 
+placing a prior over the interpolated space based on observed historical 
+data, independent samples of climate characteristics can be drawn and used 
+in analyses.
+
+We began our project attempting to extend the methods in [@Sanderson2015] by
+incorporating more variables in their compression procedure. This proved relatively
+fruitless: not only was it unclear how adding these variables improved their analysis
+, it was also uninteresting to us as a group. Instead we chose to ask questions 
+about the critical, aforementioned assumption often made about these models: are
+they independent. In our study of the literature, model interdependence is always
+assumed, but indepence is never tested for and non-independence never 
+quantified. Given this absence, we decided to focus our project on: (1) proving to 
+ourselves that the models are not independent, (2) quantifying their degree of 
+non-independence, and (3) finding a way to visualize the dependence relationships
+between the models. 
+
+# Data Summary
+
+We are using Coupled Model Intercomparison Project (CMIP5) data
+made available by ETH Institute for Atmospheric and Climate Science, as well as
+observational data gathered according to ([@Knutti2010] Table 1). We have 
+access to the observational dataset,
+as well as data from a total of 46 models, 36 variables, under 10 different
+scenarios, combined using 47 different ensembles, available in daily/monthly/annual
+aggregations, and in two spatial coordinate grids (one provided by the model source,
+and another interpolated to a 2.5 by 2.5 degree grid).
+
+To get an idea of temporal structure of the data, see Figure 1. This
+plot shows time series data for surface temperature taken from the ACCESS1-3
+model, under the historicalGHG scenario, resampled with r1i1p1 ensemble, and grided
+to 2.5 by 2.5 degrees.
+
+```{r, echo = FALSE, fig.cap = "Surface Temperature at (178.75,-11.25) and (11.25, -66.25)"}
+tmp <- data.frame(t = seq_along(dat[72, 32,]), x1 = dat[72, 32,],
+                  x2 = dat[5, 10,], lonlat = "(178.75, -11.25)",
+                  LonLat = "(11.25, -66.25)")
+
+ggplot(tmp) +
+    geom_line(aes(x = t, y = x2, color = LonLat))
+```
+
+These data display the expected seasonal signature which can be seen in each
+time series' auto-covariance plots (see figure 2).
+
+```{r, echo = FALSE, fig.cap = "Auto-covariance boxplots over the lag values for the timeseries at a sample of lat/long pairs"}
+
+pairs <- expand.grid(lon = 1:dim(dat)[1], lat = 1:dim(dat)[2])
+indices <- sample(1:nrow(pairs), 500, replace = FALSE)
+
+acDat <- ldply(indices, function(i){
+      pair <- pairs[i,]
+      tmpTS <- dat[pair$lon, pair$lat, ]
+      tmpACF <- acf(tmpTS, plot = FALSE)
+      data.frame(samp = i, lag = tmpACF$lag, acf =tmpACF$acf)
+})
+
+ggplot(acDat, aes(x = lag, y = acf, group = lag)) +
+       geom_boxplot()
+
+```
+
+In addition we can look at the entire spatial-map at an instance in time for
+a single model (see figure 3):
+
+```{r, echo = FALSE, fig.cap = "Geo-spatial variation in air surface tempurature (K) 400 months after simulation start"}
+
+tmp <- dat[ , , 400]
+tmp <- ldply(1:dim(tmp)[1], function(i){
+    ldply(1:dim(tmp)[2], function(j){
+       data.frame(lon = i, lat = j, tas = tmp[i, j])
+       })
+    })     
+
+ggplot(tmp, aes(x = lon, y = lat, fill = tas)) +
+	    geom_raster(interpolate = TRUE)
+```
+
+Here again we find strong auto-correlation, but this time of the spatial variety (
+see figure 4).
+
+```{r, echo = FALSE, fig.cap = "Correlogram for Geo-spatial data 231 months after simulation start"}
+dat <- down_filter(dat, 4)
+mat <- flatten_model(dat)
+dMat <- dist(mat)
+time <- 231
+skel <- expand.grid(lon = 1:dim(dat)[1], lat = 1:dim(dat)[2])
+skel$z <- NA
+for(i in 1:dim(dat)[1]){
+    for(j in 1:dim(dat)[2]){
+        skel[which(skel$lon == i &
+                   skel$lat == j),]$z <- dat[i,j, time]
+    }
+}
+
+ncf.cor <- correlog(skel$lon, skel$lat, skel$z,
+                    increment=2, resamp=100, quiet = TRUE)
+
+ggplot() +
+   geom_point(aes(x = ncf.cor$mean.of.class, 
+                  y = ncf.cor$correlation)) +
+   xlab("Relative Distance") +
+   ylab("Correlation")
+
+```
+
+We can also look at the euclidean distance of all the timeseries to give us
+an idea of the amount of redundancy in the data (keeping in mind this is for
+air temperature at surface only):
+
+```{r, echo = FALSE, fig.cap = "Heat map of spatial similarity of TAS time series"}
+heatmap(as.matrix(dMat), keep.dendro = FALSE)
+```
+
+Despite the spatial autocorrelation demostrated here, Knutti et al do not attempt to
+compress the data in the spatial domain. 
+
+# Methods
+
+We first attempted to reproduce (roughly) the pca/mds project methods performed in
+Knutti et al. [@Sanderson2012] which involve for each model: normalizing each variable; flattening all
+data from each variable into a single vector; translating by either the mean of all
+rows or by the observation row; compressing with PCA; and finally performing an MDS
+on the compressed model matrix. Because of the quantity of the data, this set of
+methods limits the number of variables it is feasible to include in the analysis.
+Our methods attempt to address this.
+
+We attempted to incorporate our knowledge of spatial and temporal auto-correlation.
+We first flattening the data for each individual variable, and then perform either one (1) or two (2) PCA's:
+
+- (1) we perform PCA dimension reduction to $N$ principle components on the temporal dimension and stretch the results into a single vector representing the compressed data for that model variable.
+
+- (2) we perform a PCA on the spatial dimension, selecting out the first $N$ principle components, and then perform a PCA on the temporal dimension, represented by the transpose of the $N$ principle component. We then select $K$ of these principle components and strech them into a single vector representing the compressed data for that model variable.
+
+We then concatenate the vectors for all model variables involved to form a row representing the entire model in compressed form.
+With this row of data, we then assemble a model matrix and performing an MDS on the model distances (we don't shift by the observation row, as of now).
+
+Our algorithm for method (2) (omit A4 for method (1)):
+
+- A) for $mod^j$ in $J$ models and for $var_i$ in $I$ variables:
+
+        - 1) $M_{var_i} = mod^j_{.,.,.,var_i}$
+        - 2) $T = (flatten(M_{var_i}))^T$
+        - 3) Let $P$ such that $T^TT = P^T\Lambda_{spatial} P$, then: $\tilde{M} = ((TP)_{.,1:N})^T$
+        - 4) Let $Q$ such that $\tilde{M}^T\tilde{M} = Q^T\Lambda_{time} Q$, then: $\hat{M} = (\tilde{M}Q)_{.,1:K}$
+        - 5) $R_{var_i} = [\hat{M}_{1,.}, ..., \hat{M}_{N,.}]$
+	
+      - Let $mod^j_{row} = [R_{var_1}, ..., R_{var_I}]$
+
+- B) Let $\mathcal{M} = [(mod^1_{row})^T, ..., (mod^J_{row})^T]^T$
+
+- C) Perform Classical MDS:
+
+     - Let $\Delta = [d_{uv}^2]$ where $d_uv = \sqrt{||mod^u_{row} - mod^v_{row}||}$
+     - Let $B = -\frac{1}{2}J\Delta J$ where $J = I - \frac{1}{J}\textbf{1}\textbf{1}^T$
+     - Let $Q^B$ such that $B = Q^{BT}\Lambda_{dist}Q^B$, then: $\hat{\mathcal{M}} = Q^B_{.,1:2} diag\{\lambda_1, \lambda_2\}^{\frac{1}{2}}$, where $\lambda_1$ and $\lambda_2$ are the two largest eigenvalues of $B$ and $Q^B_{.,1:2}$ are the corresponding eigenvectors.
+   
+for method (1) we chose $N\in\{2, 4\}$ and for method (2) we chose $N = K\in\{5, 10, 20\}$.
+
+# Results 
+
+The following plots showcase our results.
+
+![Method (1) with $N = 2$ \label{figA}](MDS_2_full_2017-03-26.pdf)
+
+![Method (1) with $N = 5$ \label{figB}](MDS_5_full_2017-03-26.pdf)
+
+![Method (2) with $N = M = 5$ \label{figC}](MDS_5_5_2017-03-25.pdf)
+
+![Method (2) with $N = M = 10$ \label{figD}](MDS_10_10_2017-03-25.pdf)
+
+![Method (2) with $N = M = 20$ \label{figE}](MDS_20_20_2017-03-25.pdf)
+
+There are odd differences between the two methods, though limited differences within 
+methods. Because of the multi-step 
+compression processes, the sources of the between-method differences are hard to
+ trace. Method 1 (Figures \ref{figA} and \ref{figB})
+yields results similar to Knutti et. al: we see a cloud of points with some clusters 
+with no egregious outliers. Method 2 (Figures \ref{figC}, \ref{figD}, and \ref{figE})  sees the majority of the points settling along
+a single axis, however in this case we have less clustering and the presence of 
+outliers. 
+
+# Conclusions
+
+While it is interesting to see how the degree of compression changes the outputs, 
+the conclusions we can draw are limited. Knutti et. al. include a select group of 
+variables in their analysis and proceed with a heuristic governing how to choose the number of principle
+components to include in dimension reduction. Roughly, we've shown there needs
+to be some further justification for such decisions.
+
+The trouble is that nearly all of the work we have done has been exploratory. 
+And with the amount of data we have, and the complexity of the models for which we 
+have output, we could continue with EDA for quite some time. Figuring out what to do
+is our biggest challenge...
+
+There are multiple directions we could go. The first is to proceed with our initial
+goals: improve our methods by optimizing N and M and then incorporate all model
+variables as planned. Should this task prove too trivial, another more technically
+challenging option exists: in a sense, the most natural way to think about these
+models is not as matrices in $\mathbb{R}^{n\times n}$ but as multidimenisonal arrays
+in $\mathbb{R}^{L1\times L2 \times T\times V}$ [as in citation]. We can then ask what
+multidemensional array in $\mathbb{R}^{l1 \times l2 \times t\times v}$, with
+$l1 < L1$, $l2 < L2$, $t < T$ and $v < V$, is closest to the original. Doing so
+would compress all dimensions concurrently, capturing correlations
+between and within dimensions that our flat PCA methods cannot. The caveats to
+this direction are the mathematics, the implementation, and the lack of guaranteed
+improvement in the results (given the effort needed for caveats one and two).
+Nonetheless, it is something to keep in mind.
+
+Our goals for the break are much more reasonable. We plan to do one final EDA sweep:
+we want to better understand the variables for each model. In particular, we want 
+to know how correlated they are. We have checked spatial and temporal auto-correlation 
+for each variable, but it might actually be much more useful to
+understand cross correlations between variables. 
+
+The reason for this is that we would ultimately like to statistically test for
+the independence between these models. Our hope being that the degree to which
+any tests for indepence should fail could act as an estimate for the models' 
+non-independence. Finding a set of principle components that decently well
+approximate the many variables involved in each model could give us a way to 
+further compress each model into a single timeseries. We would then be able to
+use known tests [@Hong1996; @Koch2013] to determine those timeseries' independence.
+
+# References
